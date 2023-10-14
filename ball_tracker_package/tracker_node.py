@@ -11,12 +11,14 @@ import numpy as np
 
 ## SETUP
 # Loading calibration data
-calibration_data = np.load("calibration_data.npz")
+calibration_data = np.load("calibration_data.npz") # Import calibration data
 CAMERA_MATRIX = calibration_data["mtx"] # Webcam's camera matrix values
 DIST_COEFFS = calibration_data["dist"] # Webcam's distortion coefficients
-BALL_RADIUS = 0.5  # Radius of the ball in meters
+# Constants
+BALL_RADIUS = 0.5  # Radius of the ball (IRL) in meters (0.5m for now)
 LOWER_COLOUR = (0, 100, 100)  # Lower bound for red color in HSV
 UPPER_COLOUR = (10, 255, 255)  # Upper bound for red color in HSV
+CIRCLE_COLOUR =  (0, 255, 0) # Colour of the circle drawn around the ball (Green for now)
 
 
 ## HELPER FUNCTIONS
@@ -64,12 +66,12 @@ def get_ball_coordinates(contours):
     else:
         return None, None
 
-def draw_ball(image, ball_coordinates, radius):
+def draw_ball(image, ball_coordinates, radius, colour):
     '''
     Drawing a circle around the ball
     '''
     if ball_coordinates:
-        cv2.circle(image, ball_coordinates, radius, (0, 255, 0), -1)
+        cv2.circle(image, ball_coordinates, radius, colour, -1) #
     return image
 
 def display_image(image):
@@ -114,12 +116,12 @@ class BallTrackingNode(Node):
         # Find contours in the mask
         contours = find_contours(mask)
 
-        # Initialize variables for ball coordinates (centre of the ball)
+        # Initialize variables for ball coordinates (centre of the ball - x, y, z)
         cx, cy, cz = None, None, None
         (cx, cy, cz), r = get_ball_coordinates(contours)
         
         # Draw a circle around the ball
-        marked_ball = draw_ball(cv_image, (int(cx), int(cy)), int(r))
+        marked_ball = draw_ball(cv_image, (int(cx), int(cy)), int(r),  CIRCLE_COLOUR)
 
         # Display the processed image (for visualization)
         display_image(marked_ball)
